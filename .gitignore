@@ -1,0 +1,6 @@
+.env
+headers.txt
+.venv/
+docs/*.json
+!docs/osha_violation_sample_trimmed.json
+ingest.log
