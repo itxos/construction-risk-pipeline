@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: stg_osha_inspections
+    columns:
+      - name: activity_nr
+        data_tests: [unique, not_null]
+      - name: site_state
+        data_tests:
+          - accepted_values:
+              values: ['TX']
+      - name: open_date
+        data_tests: [not_null]

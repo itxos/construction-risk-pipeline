@@ -4,3 +4,7 @@ headers.txt
 docs/*.json
 !docs/osha_violation_sample_trimmed.json
 ingest.log
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml

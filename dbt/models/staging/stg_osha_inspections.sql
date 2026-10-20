@@ -1,0 +1,22 @@
+select
+    activity_nr,
+    payload ->> 'estab_name'                           as establishment_name,
+    payload ->> 'site_address'                         as site_address,
+    payload ->> 'site_city'                            as site_city,
+    payload ->> 'site_state'                           as site_state,
+    payload ->> 'site_zip'                             as site_zip,
+    payload ->> 'mail_street'                          as mail_street,
+    payload ->> 'mail_city'                            as mail_city,
+    payload ->> 'mail_state'                           as mail_state,
+    payload ->> 'mail_zip'                             as mail_zip,
+    payload ->> 'naics_code'                           as naics_code,
+    payload ->> 'sic_code'                             as sic_code,
+    payload ->> 'insp_type'                            as inspection_type_code,
+    payload ->> 'insp_scope'                           as inspection_scope_code,
+    payload ->> 'owner_type'                           as owner_type_code,
+    payload ->> 'union_status'                         as union_status_code,
+    nullif(payload ->> 'nr_in_estab', '')::int         as employees_at_site,
+    (payload ->> 'open_date')::timestamp::date         as open_date,
+    (payload ->> 'close_case_date')::timestamp::date   as close_case_date,
+    ingested_at
+from {{ source('raw', 'osha_inspections') }}

@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_osha_violations
+    columns:
+      - name: violation_key
+        data_tests: [unique, not_null]
+      - name: activity_nr
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_osha_inspections')
+              field: activity_nr
+      - name: violation_type_code
+        data_tests:
+          - accepted_values:
+              config:
+                severity: warn   # a new code from DOL should warn, not break the pipeline
+              values: ['S', 'W', 'R', 'O', 'U', 'FTA']
+      - name: current_penalty
+        data_tests:
+          - not_null:
+              config:
+                severity: warn

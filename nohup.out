@@ -1,0 +1,20 @@
+  HTTP 429, retrying in 2s
+  HTTP 429, retrying in 4s
+  HTTP 429, retrying in 8s
+  HTTP 429, retrying in 16s
+  HTTP 429, retrying in 32s
+page 1: 200 inspections, 303 violations (running total 200 / 303)
+page 2: 200 inspections, 442 violations (running total 400 / 745)
+page 3: 200 inspections, 337 violations (running total 600 / 1082)
+Traceback (most recent call last):
+  File "/home/sysadmin/construction-risk-pipeline/ingest/ingest_osha.py", line 115, in <module>
+    main()
+  File "/home/sysadmin/construction-risk-pipeline/ingest/ingest_osha.py", line 81, in main
+    violations.extend(fetch_violations(ids[start:start + 50], args.sleep))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sysadmin/construction-risk-pipeline/ingest/ingest_osha.py", line 38, in fetch_violations
+    page = get("violation", {"filter_object": flt, "limit": limit,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sysadmin/construction-risk-pipeline/ingest/ingest_osha.py", line 26, in get
+    time.sleep(wait)
+KeyboardInterrupt

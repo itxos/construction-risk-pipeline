@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fct_osha_inspections
+    description: One row per Texas construction OSHA inspection, with citation counts and penalties rolled up.
+    columns:
+      - name: activity_nr
+        data_tests: [unique, not_null]
+      - name: citations
+        data_tests:
+          - not_null

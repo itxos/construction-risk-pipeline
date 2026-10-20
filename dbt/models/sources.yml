@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: osha_inspections
+        description: One row per OSHA inspection, untouched JSON from the DOL v4 API.
+      - name: osha_violations
+        description: One row per citation, untouched JSON from the DOL v4 API.
