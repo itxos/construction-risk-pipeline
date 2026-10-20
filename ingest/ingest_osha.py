@@ -64,6 +64,8 @@ def main():
     ap.add_argument("--sleep", type=float, default=6.0, help="seconds between API calls")
     ap.add_argument("--start-after", type=int, default=None,
                     help="activity_nr to resume after (default: highest already loaded)")
+    ap.add_argument("--viol-batch", type=int, default=50,
+                    help="inspections per violation request (try 200)")
     args = ap.parse_args()
     PACE = args.sleep
 
@@ -103,8 +105,8 @@ def main():
             page_no += 1
 
             violations = []
-            for start in range(0, len(ids), 50):
-                violations.extend(fetch_violations(ids[start:start + 50]))
+            for start in range(0, len(ids), args.viol_batch):
+                violations.extend(fetch_violations(ids[start:start + args.viol_batch]))
 
             insp_rows = {i["activity_nr"]: (i["activity_nr"], Json(i)) for i in inspections}
             viol_rows = {(v["activity_nr"], str(v["citation_id"])):

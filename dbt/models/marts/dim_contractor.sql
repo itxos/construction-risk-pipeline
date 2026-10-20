@@ -20,6 +20,7 @@ select
     min(open_date)                                  as first_inspection,
     max(open_date)                                  as last_inspection,
     sum(citations)                                  as citations,
+    sum(serious_citations)                          as serious_citations,
     sum(repeat_citations)                           as repeat_citations,
     sum(willful_citations)                          as willful_citations,
     sum(total_penalty_usd)                          as total_penalty_usd

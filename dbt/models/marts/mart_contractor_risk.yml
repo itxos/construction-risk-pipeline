@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: mart_contractor_risk
+    description: Risk ranking of Texas construction businesses with at least 3 OSHA inspections. Businesses only, by design.
+    columns:
+      - name: contractor_key
+        data_tests: [unique, not_null]
+      - name: risk_points
+        data_tests: [not_null]
