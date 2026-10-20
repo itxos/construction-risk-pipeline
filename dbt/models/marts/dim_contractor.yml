@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_contractor
+    description: One row per normalized employer name. Only rows with is_business = true are suitable for ranking by name.
+    columns:
+      - name: contractor_key
+        data_tests: [unique, not_null]
+      - name: is_business
+        data_tests: [not_null]
