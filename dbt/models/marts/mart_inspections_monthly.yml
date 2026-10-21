@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: mart_inspections_monthly
+    description: Monthly OSHA inspection and citation totals by construction subsector. Contains no establishment names.
+    config:
+      grants:
+        select: ['metabase_ro']
+    columns:
+      - name: open_month
+        data_tests: [not_null]
+      - name: inspections
+        data_tests: [not_null]

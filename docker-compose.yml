@@ -29,5 +29,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  metabase:
+    image: metabase/metabase:latest
+    container_name: construction-metabase
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: ${POSTGRES_USER}
+      MB_DB_PASS: ${POSTGRES_PASSWORD}
+      MB_DB_HOST: postgres
+      JAVA_OPTS: "-Xmx1g"
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 volumes:
   pgdata:
