@@ -66,6 +66,8 @@ def main():
                     help="activity_nr to resume after (default: highest already loaded)")
     ap.add_argument("--viol-batch", type=int, default=50,
                     help="inspections per violation request (try 200)")
+    ap.add_argument("--refresh-since", default=None,
+                    help="re-fetch violations for inspections opened on/after this date (YYYY-MM-DD)")
     args = ap.parse_args()
     PACE = args.sleep
 
@@ -76,6 +78,35 @@ def main():
         password=os.environ["POSTGRES_PASSWORD"],
         dbname=os.environ["POSTGRES_DB"],
     )
+
+    if args.refresh_since:
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT activity_nr FROM raw.osha_inspections "
+                "WHERE (payload ->> 'open_date')::date >= %s ORDER BY activity_nr",
+                (args.refresh_since,))
+            ids = [r[0] for r in cur.fetchall()]
+        log(f"refreshing violations for {len(ids)} inspections opened since {args.refresh_since}")
+        total_v = 0
+        try:
+            for start in range(0, len(ids), args.viol_batch):
+                violations = fetch_violations(ids[start:start + args.viol_batch])
+                viol_rows = {(v["activity_nr"], str(v["citation_id"])):
+                             (v["activity_nr"], str(v["citation_id"]), Json(v)) for v in violations}
+                if viol_rows:
+                    with conn, conn.cursor() as cur:
+                        execute_values(cur, """
+                            INSERT INTO raw.osha_violations (activity_nr, citation_id, payload) VALUES %s
+                            ON CONFLICT (activity_nr, citation_id)
+                            DO UPDATE SET payload = EXCLUDED.payload, ingested_at = now()""",
+                            list(viol_rows.values()))
+                total_v += len(viol_rows)
+                log(f"batch {start // args.viol_batch + 1}: {len(viol_rows)} violations (total {total_v})")
+        except RateLimited:
+            log("Rate limited after all retries. Progress is saved; re-run later to resume.")
+            sys.exit(2)
+        log("done")
+        return
 
     if args.start_after is not None:
         last_id = args.start_after
