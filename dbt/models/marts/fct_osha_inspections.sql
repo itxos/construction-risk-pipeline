@@ -27,6 +27,7 @@ select
     i.employees_at_site,
     i.open_date,
     extract(year from i.open_date)::int                     as open_year,
+    i.open_date < (current_date - interval '6 months')      as citations_mature,
     i.close_case_date,
     coalesce(v.citations, 0)                                as citations,
     coalesce(v.serious_citations, 0)                        as serious_citations,

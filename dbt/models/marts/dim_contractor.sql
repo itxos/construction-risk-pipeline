@@ -23,6 +23,10 @@ select
     sum(serious_citations)                          as serious_citations,
     sum(repeat_citations)                           as repeat_citations,
     sum(willful_citations)                          as willful_citations,
+    count(*) filter (where citations_mature)                                          as mature_inspections,
+    coalesce(sum(serious_citations) filter (where citations_mature), 0)               as mature_serious_citations,
+    coalesce(sum(repeat_citations)  filter (where citations_mature), 0)               as mature_repeat_citations,
+    coalesce(sum(willful_citations) filter (where citations_mature), 0)               as mature_willful_citations,
     sum(total_penalty_usd)                          as total_penalty_usd
 from base
 group by name_norm

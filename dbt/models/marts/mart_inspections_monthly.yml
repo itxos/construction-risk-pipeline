@@ -11,3 +11,5 @@ models:
         data_tests: [not_null]
       - name: inspections
         data_tests: [not_null]
+      - name: is_mature_month
+        data_tests: [not_null]
