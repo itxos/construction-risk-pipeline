@@ -8,7 +8,8 @@ dbt/target/
 dbt/logs/
 dbt/dbt_packages/
 dbt/.user.yml
-airflow/logs/
+airflow/logs/*
+!airflow/logs/.gitkeep
 __pycache__/
 *.pyc
 nohup.out
