@@ -9,3 +9,5 @@ dbt/logs/
 dbt/dbt_packages/
 dbt/.user.yml
 airflow/logs/
+__pycache__/
+*.pyc
