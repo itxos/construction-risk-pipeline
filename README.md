@@ -115,3 +115,22 @@ OSHA publishes employer records, and many Texas construction employers are sole 
 - The **risk score** (serious = 1, repeat = 3, willful = 5, other = 0; businesses with at least 3 mature inspections) is computed in the warehouse but is **not published by name**. These weights are my own assumption, not an OSHA formula.
 - A dbt test fails the build if a non-business ever enters the ranking.
 - The **dashboard database role** can read only the monthly aggregate table, so company names cannot reach the dashboard even by mistake.
+
+## Limitations
+
+- **One source.** Everything comes from OSHA enforcement records. The project does not yet join permits, insurance claims, or any other dataset, so it describes safety enforcement, not project risk.
+- **Finding new inspections assumes numbering follows time.** The loader looks for activity numbers above the highest one loaded. That held across the full history load, but I have not verified it as a rule. An inspection recorded late with a lower number would be missed. A periodic reconciliation (count by date range against the API) would catch this.
+- **Completeness is unchecked.** I did not compare the loaded counts against OSHA's own search site, and the source data stops at late September 2026. The autumn 2025 dip is unexplained.
+- **An establishment is not a contractor.** OSHA records the employer at an inspected worksite. It does not show who is the general contractor and who is a subcontractor, so the project cannot say anything about those relationships.
+- **The risk score is a design choice, not a validated measure.** Its weights are my assumption, it uses citations (which can be contested and revised), and I have not tested whether it predicts anything.
+- **The business classifier is a keyword heuristic.** It errs toward excluding businesses. The private warehouse still contains establishment names, including some sole proprietors, in intermediate tables. Only the dashboard role is restricted.
+- **Single-node setup.** One VM, Airflow's LocalExecutor, and no high availability. Fine for this data volume, not a production design.
+
+## Future work
+
+- **Reconcile against the API.** A monthly check of inspection counts by date range, to test the numbering assumption above.
+- **Add a second source.** The aim is project and insurance context: building permit data where a city publishes it, and FEMA flood claims and disaster declarations for Texas. This is where matching company names across datasets would become a real problem. I have not confirmed which Texas cities publish usable permit data.
+- **A streaming layer.** Poll National Weather Service alerts for Texas counties, publish new and changed alerts to Kafka or Redpanda, and process them with a stream job. NWS offers a polled API, not a push feed, so this would be poll-to-stream with deduplication. It becomes useful once there is a source of active project locations to compare against.
+- **CI.** A GitHub Actions workflow that builds the dbt project against a throwaway Postgres container on every pull request.
+- **Alerting.** Notify on repeated load failures or when the load falls behind.
+- **Incremental dbt models** as the history grows.
