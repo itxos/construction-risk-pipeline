@@ -19,3 +19,4 @@ CREATE TABLE IF NOT EXISTS raw.osha_violations (
 CREATE INDEX IF NOT EXISTS idx_osha_insp_open_date
     ON raw.osha_inspections (((payload ->> 'open_date')));
 SELECT 'CREATE DATABASE metabase' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'metabase')\gexec
+SELECT 'CREATE DATABASE airflow' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'airflow')\gexec
