@@ -17,6 +17,7 @@ services:
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
     profiles: ["tools"]
+    user: "${AIRFLOW_UID:-1000}:0"
     working_dir: /usr/app/dbt
     environment:
       DBT_PROFILES_DIR: /usr/app/dbt
