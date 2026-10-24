@@ -134,3 +134,51 @@ OSHA publishes employer records, and many Texas construction employers are sole 
 - **CI.** A GitHub Actions workflow that builds the dbt project against a throwaway Postgres container on every pull request.
 - **Alerting.** Notify on repeated load failures or when the load falls behind.
 - **Incremental dbt models** as the history grows.
+
+## Verified from a clean clone
+
+I cloned the repository into a fresh folder with a new database and walked the Quick start. This covers what was tested and what was not.
+
+**Tested:** the Postgres init SQL (schemas, raw tables, and the Airflow and Metabase databases) on a brand-new volume, under different user and database names; creating the dashboard role; `dbt run` and `dbt test` from an empty database (6 models, 23 tests); Airflow starting with the DAG visible in the UI; and Metabase connecting with the read-only role and seeing only the aggregate table.
+
+**Not tested:** a first full DAG run from an empty database, which would restart the full history load and run into the API's rate limit; and the dashboard itself, since Metabase stores its saved charts in its own database and they are not part of this repository.
+
+The clean-clone test found two setup problems, both fixed: `airflow/logs` was missing from a fresh clone and Docker created it owned by root, and the `dbt` container wrote its build folders as root.
+
+## Dashboard queries
+
+The three charts query the aggregate table `marts.mart_inspections_monthly`, connected as the read-only `metabase_ro` role.
+
+Inspections by month and trade group (stacked bar):
+
+```sql
+SELECT open_month, naics_subsector, sum(inspections) AS inspections
+FROM marts.mart_inspections_monthly
+GROUP BY 1, 2
+ORDER BY 1;
+```
+
+Citations per 100 inspections, by trade group (bar), using only months old enough for citations to have posted:
+
+```sql
+SELECT naics_subsector,
+       round(100.0 * sum(serious_citations) / sum(inspections), 1) AS serious_per_100,
+       round(100.0 * sum(repeat_citations)  / sum(inspections), 1) AS repeat_per_100
+FROM marts.mart_inspections_monthly
+WHERE is_mature_month
+GROUP BY 1
+ORDER BY 1;
+```
+
+Share of inspections with citations, by month (line), mature months only:
+
+```sql
+SELECT open_month,
+       round(100.0 * sum(inspections_with_citations) / sum(inspections), 1) AS pct_with_citations
+FROM marts.mart_inspections_monthly
+WHERE is_mature_month
+GROUP BY 1
+ORDER BY 1;
+```
+
+The per-100 figures are the average number of citations per inspection scaled by 100, not a percentage of inspections, so they can exceed 100.
